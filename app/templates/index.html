@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Telegram Messages</title>
+</head>
+<body>
+    <!-- 如果没有消息，显示表单 -->
+    {% if not messages %}
+    <form method="get" action="{{ url_for('index') }}">
+        <input type="hidden" name="auth" value="{{ auth_code }}">
+        <label for="start_date">Start Date:</label>
+        <input type="datetime-local" id="start_date" name="start_date" required>
+        <label for="end_date">End Date:</label>
+        <input type="datetime-local" id="end_date" name="end_date">
+        <input type="submit" value="Filter Messages">
+        <!--
+            {% set ns = namespace(current_chat_name=None) %}
+            {% for chat_name, sender_name, message in messages %}
+                {% if ns.current_chat_name != chat_name %}
+                    <p><strong>{{ chat_name }}</strong></p>
+                    {% set ns.current_chat_name = chat_name %}
+                {% endif %}
+                <p>{{ sender_name }}: {{ message }}</p>
+            {% endfor %}
+        -->
+    </form>
+    {% endif %}
+<pre>
+{{ messages|safe }}
+</pre>
+</body>
+</html>

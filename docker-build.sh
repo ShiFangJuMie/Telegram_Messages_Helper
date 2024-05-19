@@ -1,0 +1,1 @@
+docker build -t telegram_messages_helper:latest .

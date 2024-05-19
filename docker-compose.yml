@@ -1,0 +1,35 @@
+services:
+  telegram_messages_helper:
+    container_name: telegram_messages_helper
+    # restart: always
+    image: telegram_messages_helper:latest
+    network_mode: "bridge"
+    ports:
+      - "12300:8080"
+    volumes:
+      - ./app:/app
+    environment:
+      TZ: "Asia/Shanghai"
+      # (必须) 申请TG API时获取
+      TELEGRAM_API_ID: "2292xxxx"
+      TELEGRAM_API_HASH: "3616e6d4b08e4e91b0d53xxxxxxxxxx"
+      # (可选) 想要接收的消息，不填时接收所有消息，填写时只接收指定聊天
+      TELEGRAM_WHITELIST_CHAT: ""
+      # (可选) 想要忽略的消息，不填时接收所有消息，填写时不接收指定聊天
+      TELEGRAM_BLACKLIST_CHAT: "-1001747520832,-1001379449445,-1002082969681,-1001861418848,-1002055966280"
+      # (可选) 用于保存session的文件名。
+      TELEGRAM_SESSION: "my_account"
+      # (必须) 数据库连接池信息
+      DB_HOST: "192.168.31.23"
+      DB_PORT: "5433"
+      DB_NAME: "telegram"
+      DB_USER: "telegram"
+      DB_PASSWORD: "telegram"
+      # (必须) OpenAI API配置
+      AI_API_URL: "https://api.openai.com/v1/chat/completions"
+      AI_API_KEY: "your_openai_api_key_here"
+      # (必须) HTTP服务鉴权
+      AUTH_CODE: "om34V4sxxxxx"
+      # (可选) 代理服务器，如不需要请注释。
+      # http_proxy: "http://192.168.31.23:7890"
+      # https_proxy: "http://192.168.31.23:7890"

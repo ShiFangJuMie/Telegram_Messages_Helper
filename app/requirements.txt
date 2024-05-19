@@ -1,0 +1,4 @@
+Telethon
+psycopg2-binary
+Flask
+requests
