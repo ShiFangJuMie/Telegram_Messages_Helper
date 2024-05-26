@@ -17,10 +17,10 @@
 # 怎么安装
 ## 前提条件
 
-1、你需要有TG账号的API权限。 
-2、你需要已经安装docker compose
-3、你需要已经安装PgSQL
-4、先看完下面的内容，再决定要不要用
+- 你需要有TG账号的API权限。 
+- 你需要已经安装docker compose
+- 你需要已经安装PgSQL
+- 先看完下面的内容，再决定要不要用
 
 申请TG的API权限：https://my.telegram.org/apps
 
