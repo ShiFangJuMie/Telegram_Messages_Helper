@@ -95,7 +95,7 @@ Group Title: 群聊名字 | Chat ID: -1001239150xxx
 > 当你想要使用dify、coze等平台实现工作流时，可以通过此路径获取获取原始文本。
 > 
 > 输出中可以使用关键词“当前为最后一页”和“没有更多的记录了”供工作流判断。
-https://xxx.com/?auth=om34V4s958c9d345&page=1
+https://xxxxxx.com/?auth=om34V4s958c9d345&page=1
 
 可用参数：
 
@@ -106,7 +106,7 @@ https://xxx.com/?auth=om34V4s958c9d345&page=1
 | start_date=YYYY-MM-DD | 查看指定一天的记录，默认前一天        |
 | auth                  | 必填，与环境变量AUTH_CODE一致    |
 #### 查看AI总结后的内容
-https://xxx.com/summary?auth=om34V4s958c9d345
+https://xxxxxx.com/summary?auth=om34V4s958c9d345
 
 可用参数：
 
