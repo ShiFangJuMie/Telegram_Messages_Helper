@@ -1,8 +1,11 @@
 services:
   telegram_messages_helper:
     container_name: telegram_messages_helper
-    # restart: always
-    image: telegram_messages_helper:latest
+    restart: always
+    # image: telegram_messages_helper:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     network_mode: "bridge"
     ports:
       - "12300:8080"
@@ -20,12 +23,12 @@ services:
       # (可选) 消息关键词的黑名单（不支持模糊匹配）
       TELEGRAM_BLACKLIST_KEYWORDS: "欢迎入群,欢迎光临,欢迎加入,群规,tg://user*加入,tg://user*验证,tg://user*处理,已被封禁,已禁言,该信息*自动删除,永久封禁,你已成功参加抽奖"
       # (可选) 用于保存session的文件名。
-      TELEGRAM_SESSION: "TroyMiller"
+      TELEGRAM_SESSION: "YOUR_SESSION_NAME"
       # (必须) HTTP服务鉴权
       AUTH_CODE: "om34V4s958c9d345"
       # (必须) 数据库连接池信息
-      DB_HOST: "192.168.31.23"
-      DB_PORT: "5433"
+      DB_HOST: "192.168.31.1"
+      DB_PORT: "5432"
       DB_NAME: "telegram"
       DB_USER: "telegram"
       DB_PASSWORD: "telegram"
