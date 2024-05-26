@@ -11,7 +11,7 @@ client = TelegramClient(session_name, api_id, api_hash)
 
 
 async def main():
-    # 登陆客户端
+    # 登录 Telegram 客户端
     await client.start()
     
     # 获取对话列表（群组，频道等）

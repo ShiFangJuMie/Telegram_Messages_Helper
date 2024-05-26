@@ -1,4 +1,5 @@
 import os
+import re
 from db import Database, db_params
 from logger import logging
 from telethon import TelegramClient, events
@@ -13,16 +14,30 @@ from telethon.errors import (
 api_id = int(os.getenv('TELEGRAM_API_ID'))
 api_hash = os.getenv('TELEGRAM_API_HASH')
 session_name = os.path.join('data', os.getenv('TELEGRAM_SESSION'))
-# 白名单
+
+# 群组白名单
 whitelist_chats_env = os.getenv('TELEGRAM_WHITELIST_CHAT', '')
 whitelist_chats = [int(chat_id) for chat_id in whitelist_chats_env.split(',')] if whitelist_chats_env else None
-# 黑名单
+
+# 群组黑名单
 blacklist_chats_env = os.getenv('TELEGRAM_BLACKLIST_CHAT', '')
 blacklist_chats = [int(chat_id) for chat_id in blacklist_chats_env.split(',')] if blacklist_chats_env else []
+
+# 关键词黑名单
+blacklist_keywords_env = os.getenv('TELEGRAM_BLACKLIST_KEYWORDS', '')
+blacklist_keywords = blacklist_keywords_env.split(',') if blacklist_keywords_env else []
+
+
+# 将通配符转换为正则表达式
+def wildcard_to_regex(pattern):
+    return re.compile(re.escape(pattern).replace(r'\*', '.*'))
+
 
 # 初始化
 db = Database(db_params)
 client = TelegramClient(session_name, api_id, api_hash)
+# 转换黑名单关键字为正则表达式
+blacklist_patterns = [wildcard_to_regex(keyword) for keyword in blacklist_keywords]
 
 
 @client.on(events.NewMessage(incoming=True, chats=whitelist_chats))
@@ -42,7 +57,23 @@ async def new_message_listener(event):
     if event.text is None or event.text.strip() == '':
         logging.debug("Ignored message with no text or known media type")
         return
-
+        
+    # 检查消息内容是否包含黑名单中的关键字
+    for pattern in blacklist_patterns:
+        if pattern.search(event.text):
+            logging.debug(f"Ignored message containing blacklisted keyword pattern: {pattern.pattern}")
+            return
+            
+    # 获取被引用消息的文本
+    quoted_text = ''
+    if event.reply_to_msg_id:
+        try:
+            quoted_message = await event.get_reply_message()
+            if quoted_message and quoted_message.text:
+                quoted_text = f"引用消息: {quoted_message.text} \n回复: "
+        except Exception as e:
+            logging.error(f"Failed to fetch quoted message: {e}")
+            
     try:
         # 如果event.sender为None，则可能是匿名管理员或频道发的消息
         if event.sender:
@@ -65,14 +96,10 @@ async def new_message_listener(event):
             is_bot = None
             logging.debug("Sender is None, possibly an anonymous admin or system message")
 
-        # logging.info(f"id: {event.id}")
-        # logging.info(f"sender_id: {event.sender_id}")
-        # logging.info(f"sender_name: {sender_name}")
-        # logging.info(f"chat_id: {event.chat_id}")
-        # logging.info(f"chat_title: {chat_title}")
-        # logging.info(f"text: {event.text}")
-        # logging.info(f"date: {event.date}")
-        # logging.info(f"is_bot: {is_bot}")
+        # 截断超过200字符的消息，并添加省略号，如果LLM输入上限不是问题，那么久移除或调高
+        message_text = f"{quoted_text}{event.text}"
+        if len(message_text) > 300:
+            message_text = message_text[:300] + '...'
 
         message_data = (
             event.id,
@@ -80,7 +107,7 @@ async def new_message_listener(event):
             sender_name,
             event.chat_id,
             chat_title,
-            event.text,
+            message_text,
             event.date,
             is_bot
         )

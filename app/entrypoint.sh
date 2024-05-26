@@ -1,14 +1,14 @@
 #!/bin/bash
+
 SESSION_FILE="/app/data/${TELEGRAM_SESSION}.session"
 
 # 检查会话文件是否存在
 if [ -f "$SESSION_FILE" ]; then
     echo "INFO - Session file found. Attempting to start the bot..."
     
-    # 在后台启动 main.py
+    # 启动服务
     python /app/main.py &
-
-    # 启动 app.py 并保持在前台运行
+    python /app/script_scheduler.py &
     python /app/app.py
 
     # 等待后台进程结束
