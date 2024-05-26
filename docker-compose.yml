@@ -2,10 +2,7 @@ services:
   telegram_messages_helper:
     container_name: telegram_messages_helper
     restart: always
-    # image: telegram_messages_helper:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: telegram_messages_helper:latest
     network_mode: "bridge"
     ports:
       - "12300:8080"

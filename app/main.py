@@ -96,7 +96,7 @@ async def new_message_listener(event):
             is_bot = None
             logging.debug("Sender is None, possibly an anonymous admin or system message")
 
-        # 截断超过200字符的消息，并添加省略号，如果LLM输入上限不是问题，那么久移除或调高
+        # 截断超过300字符的消息，并添加省略号，如果LLM输入上限不是问题，那么久移除或调高
         message_text = f"{quoted_text}{event.text}"
         if len(message_text) > 300:
             message_text = message_text[:300] + '...'
