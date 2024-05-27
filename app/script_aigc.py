@@ -20,6 +20,8 @@ def load_prompt_from_file(filepath):
 
 
 def call_ai_api(message):
+    if AI_API_MODEL == 'coze' and len(PROMPT)+len(message) >= 60000:
+        return "输入的文本长度超过60000字符，无法总结。"
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {AI_API_KEY}'

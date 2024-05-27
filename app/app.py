@@ -58,10 +58,10 @@ def index():
 
     try:
         rows = db.get_messages(start_date)
+        html_messages = ""
 
         if show_all:
             # 如果传入 all 参数，返回所有消息
-            html_messages = ""
             for row in rows:
                 html_messages += f'群组名称：{row["chat_name"]}\n{row["messages"]}\n\n'
         else:
@@ -102,7 +102,7 @@ def summary():
         rows = db.get_summary(start_date)
         html_messages = ""
         for row in rows:
-            html_messages += f'群组名称：{row["chat_name"]}\n{row["ai_summary"]}\n\n'
+            html_messages += f'<pre>【群组名称：{row["chat_name"]}】\n{row["ai_summary"]}\n\n</pre>'
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         html_messages = "加载消息时发生错误。"

@@ -27,7 +27,7 @@ schedule.every().day.at("00:00").do(job_sync_wechat)
 schedule.every().day.at("00:05").do(job_aggregated)
 
 # 每2小时运行一次，防止接口异常/限频等情况导致遗漏
-schedule.every(2).hours.do(job_aigc)
+schedule.every(2).hours.at(":15").do(job_aigc)
 
 
 # 持续运行守护进程
