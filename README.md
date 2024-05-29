@@ -154,4 +154,4 @@ select chat_id,chat_name from messages_aggregated;
 你可以：
  - 检查该群组中是否存在大量无用的信息，选择性的在环境变量中过滤掉无效信息。（如重复长文本的广告和骚扰信息）
  - 更换一个支持更大上下文的模型。ChatGPT普通号的4o处理量很小，可以使用 deanxv/coze-discord-proxy 大佬的项目获取更大的gpt-4o上下文能力。感谢LinuxDo @Dean大佬。
- - 如果你使用了CDP，请将你的Bot设置中Dialog round调整到最大值（30轮）
+ - 如果你使用了CDP，请将你的Bot设置中Dialog round和Response max length调整到最大值（100、8192）

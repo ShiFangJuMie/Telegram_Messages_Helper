@@ -22,8 +22,8 @@ def load_prompt_from_file(filepath):
 def call_ai_api(message):
     if len(message) <= 300:
         return "300个字都不到的群，没有总结价值。"
-    if AI_API_MODEL == 'coze' and len(PROMPT)+len(message) >= 60000:
-        return "超过60000字符，超出CDP可用的最大上下文，无法总结。"
+    if AI_API_MODEL == 'coze' and len(PROMPT)+len(message) >= 200000:
+        return "超过200000字符，超出CDP可用的最大上下文，无法总结。"
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {AI_API_KEY}'
