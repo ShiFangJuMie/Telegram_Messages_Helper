@@ -1,7 +1,9 @@
 import os
+
 import psycopg2
 import psycopg2.extras
 import requests
+
 from db import Database, db_params
 from logger import logging
 
@@ -20,11 +22,13 @@ def load_prompt_from_file(filepath):
 
 
 def call_ai_api(message):
+    global AI_API_MODEL
     if len(message) <= 100:
         return "100个字都不到的群，没有总结价值。"
-    if AI_API_MODEL == 'coze' and len(PROMPT)+len(message) >= 128000:
-        return "上下文超过128k，超出CDP(GPT-4o)极限，无法总结。"
-    if AI_API_MODEL == 'gemini' and len(PROMPT)+len(message) >= 200000:
+    if AI_API_MODEL == 'coze' and len(PROMPT) + len(message) >= 128000:
+        AI_API_MODEL = 'gemini'
+        # return "上下文超过128k，超出CDP(GPT-4o)极限，无法总结。"
+    if AI_API_MODEL == 'gemini' and len(PROMPT) + len(message) >= 200000:
         return "上下文超过200k，超出CDP(Gemini)极限，无法总结。"
     headers = {
         'Content-Type': 'application/json',
@@ -38,7 +42,7 @@ def call_ai_api(message):
             }
         ],
         'model': AI_API_MODEL,
-        'max_tokens': 4096,
+        'max_tokens': 8192,
         'temperature': 0.8,
         'stream': False
     }
@@ -56,7 +60,7 @@ def call_ai_api(message):
 def process_aggregated_messages():
     conn = psycopg2.connect(**db_params)
     cur = conn.cursor()
-    
+
     try:
         # 查询聚合消息
         cur.execute("""
@@ -64,11 +68,11 @@ def process_aggregated_messages():
             FROM messages_aggregated
             WHERE ai_summary IS NULL
         """)
-        
+
         rows = cur.fetchall()
         for row_id, messages in rows:
             logging.info(f"Processing aggregated messages for row ID {row_id}")
-            
+
             # 调用AI API处理消息
             ai_result = call_ai_api(messages)
             if ai_result:
@@ -81,7 +85,7 @@ def process_aggregated_messages():
                 conn.commit()
             else:
                 logging.warning(f"Failed to process messages for row ID {row_id}")
-        
+
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
         conn.rollback()
@@ -98,5 +102,5 @@ if __name__ == '__main__':
     except Exception as e:
         logging.error(f"Failed to load prompt from file: {e}")
         PROMPT = "请将以下聊天记录进行总结：\n"  # 如果加载失败，使用默认值
-        
+
     process_aggregated_messages()
