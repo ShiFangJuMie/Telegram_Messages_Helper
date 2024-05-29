@@ -1,9 +1,10 @@
 import os
+from contextlib import contextmanager
+
 import psycopg2
 import psycopg2.extras
-from contextlib import contextmanager
-from logger import logging
 
+from logger import logging
 
 db_params = {
     'host': os.getenv('DB_HOST'),

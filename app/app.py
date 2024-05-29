@@ -1,6 +1,8 @@
 import os
-from flask import Flask, render_template, request
 from datetime import datetime, timedelta
+
+from flask import Flask, render_template, request
+
 from db import Database, db_params
 
 app = Flask(__name__)
@@ -18,7 +20,7 @@ def create_messages_list(rows):
         # 格式化当前行的消息
         formatted_message = f'群组名称：{row["chat_name"]}\n{row["messages"]}\n\n'
         message_length = len(formatted_message.encode('utf-8'))
-        
+
         # 如果添加这个消息会超出当前页面的限制，则先将当前页面添加到列表，再开始新的一页
         if current_page_length + message_length > PAGE_LIMIT:
             messages_list.append(current_page_messages)  # 完成当前页面
@@ -28,7 +30,7 @@ def create_messages_list(rows):
             # 添加消息到当前页面
             current_page_messages += formatted_message
             current_page_length += message_length
-        
+
     # 添加最后一页，如果有的话
     if current_page_messages:
         messages_list.append(current_page_messages)
@@ -41,7 +43,7 @@ def index():
     # 简单的身份验证
     if os.getenv('AUTH_CODE') != request.args.get('auth'):
         return "Unauthorized", 401
-        
+
     page = request.args.get('page', default=1, type=int)  # 获取当前页数，默认为1
     show_all = request.args.get('all') == 'true'  # 检查是否传入all参数(忽略分页，显示全部消息)
 
@@ -69,7 +71,7 @@ def index():
 
             # 根据页码选择要显示的消息
             if page <= len(messages_list):
-                html_messages = messages_list[page-1]
+                html_messages = messages_list[page - 1]
                 if page == len(messages_list):
                     html_messages += "\n--当前为最后一页--"
             else:

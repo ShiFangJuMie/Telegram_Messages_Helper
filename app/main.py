@@ -1,14 +1,16 @@
 import os
 import re
-from db import Database, db_params
-from logger import logging
+
 from telethon import TelegramClient, events
-from telethon.tl.types import User, Channel
 from telethon.errors import (
     PhoneCodeInvalidError,
     SessionPasswordNeededError,
     PhoneNumberUnoccupiedError
 )
+from telethon.tl.types import User, Channel
+
+from db import Database, db_params
+from logger import logging
 
 # 使用环境变量获取配置信息
 api_id = int(os.getenv('TELEGRAM_API_ID'))
@@ -57,13 +59,13 @@ async def new_message_listener(event):
     if event.text is None or event.text.strip() == '':
         logging.debug("Ignored message with no text or known media type")
         return
-        
+
     # 检查消息内容是否包含黑名单中的关键字
     for pattern in blacklist_patterns:
         if pattern.search(event.text):
             logging.debug(f"Ignored message containing blacklisted keyword pattern: {pattern.pattern}")
             return
-            
+
     # 获取被引用消息的文本
     quoted_text = ''
     if event.reply_to_msg_id:
@@ -73,7 +75,7 @@ async def new_message_listener(event):
                 quoted_text = f"引用消息: {quoted_message.text} \n回复: "
         except Exception as e:
             logging.error(f"Failed to fetch quoted message: {e}")
-            
+
     try:
         # 如果event.sender为None，则可能是匿名管理员或频道发的消息
         if event.sender:
@@ -96,7 +98,7 @@ async def new_message_listener(event):
             is_bot = None
             logging.debug("Sender is None, possibly an anonymous admin or system message")
 
-        # 截断超过300字符的消息，并添加省略号，如果LLM输入上限不是问题，那么久移除或调高
+        # 截断超过300个字符的消息，并添加省略号，如果LLM输入上限不是问题，那么久移除或调高
         message_text = f"{quoted_text}{event.text}"
         if len(message_text) > 300:
             message_text = message_text[:300] + '...'

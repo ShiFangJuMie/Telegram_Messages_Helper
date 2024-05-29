@@ -1,5 +1,6 @@
-from telethon import TelegramClient
 import os
+
+from telethon import TelegramClient
 
 # 初始化变量
 api_id = int(os.getenv('TELEGRAM_API_ID'))
@@ -13,11 +14,12 @@ client = TelegramClient(session_name, api_id, api_hash)
 async def main():
     # 登录 Telegram 客户端
     await client.start()
-    
+
     # 获取对话列表（群组，频道等）
     async for dialog in client.iter_dialogs():
         if dialog.is_group:
             print(f"Group Title: {dialog.name} | Chat ID: {dialog.id}")
+
 
 # 运行客户端
 with client:

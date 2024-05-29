@@ -1,11 +1,13 @@
 import os
-from db import Database, db_params
-from logger import logging
-from datetime import datetime, timedelta
 import sys
-import requests
+from datetime import datetime, timedelta
+
 import psycopg2
 import psycopg2.extras
+import requests
+
+from db import Database, db_params
+from logger import logging
 
 db = Database(db_params)
 wechat_base_url = os.getenv('WECHAT_BASE_URL')
