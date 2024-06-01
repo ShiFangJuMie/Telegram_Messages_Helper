@@ -1,4 +1,8 @@
-FROM python:3.9-slim
+FROM python:3.9-alpine
+
+# 设置python环境变量，不生成pyc文件，不缓冲输出
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # 设置工作目录
 WORKDIR /app
@@ -14,4 +18,4 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 ENV PATH="/usr/local/bin:$PATH"
 
 # 启动应用
-CMD ["bash", "/app/entrypoint.sh"]
+CMD ["sh", "/app/entrypoint.sh"]

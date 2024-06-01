@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SESSION_FILE="/app/data/${TELEGRAM_SESSION}.session"
 
