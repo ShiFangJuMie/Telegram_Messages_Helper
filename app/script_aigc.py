@@ -14,9 +14,6 @@ db = Database(db_params)
 # 从环境变量中获取API URL、API Key和模型
 AI_API_URL = os.getenv('AI_API_URL')
 AI_API_KEY = os.getenv('AI_API_KEY')
-AI_API_MODEL = os.getenv('AI_API_MODEL')
-max_tokens = 4096
-
 
 def load_prompt_from_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as file:
@@ -24,7 +21,9 @@ def load_prompt_from_file(filepath):
 
 
 def call_ai_api(message):
-    global AI_API_MODEL, max_tokens
+    AI_API_MODEL = os.getenv('AI_API_MODEL')
+    max_tokens = 4096
+    
     if len(message) <= 200:
         return f"本次总结因内容太少而跳过，以下为原文：\n{message}"  # 如果消息长度小于200，直接返回原文
     if AI_API_MODEL == 'coze' and len(PROMPT) + len(message) >= 128000:
