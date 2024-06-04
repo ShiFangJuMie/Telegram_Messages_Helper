@@ -95,7 +95,7 @@ class Database:
                     SELECT chat_name, chat_id, ai_summary
                     FROM messages_aggregated
                     WHERE aggregated_date = %s
-                    ORDER BY id
+                    ORDER BY chat_name
                     """
                     cur.execute(query, (start_date,))
                     rows = cur.fetchall()
