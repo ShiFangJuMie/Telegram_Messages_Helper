@@ -1,11 +1,12 @@
 import os
+import re
 from datetime import datetime, timedelta
 
 from flask import Flask, render_template, request
 
 from db import Database, db_params
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 db = Database(db_params)
 
 PAGE_LIMIT = 50000  # 设置页面字符阈值为50k
@@ -89,8 +90,8 @@ def summary():
     if os.getenv('AUTH_CODE') != request.args.get('auth'):
         return "Unauthorized", 401
 
-    # 获取并格式化 start_date 参数
-    start_date_str = request.args.get('start_date')
+    start_date_str = request.args.get('start_date')  # 获取并格式化 start_date 参数
+
     if start_date_str:
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -100,18 +101,22 @@ def summary():
         # 计算前一天的日期
         start_date = (datetime.now() - timedelta(days=1)).date()
 
+    html_messages = ""
+    html_menu = ""
     try:
         rows = db.get_summary(start_date)
-        html_messages = ""
         for row in rows:
-            html_messages += f'<pre>【群组名称：{row["chat_name"]}】\n{row["ai_summary"]}\n\n</pre>'
+            formatted_summary = row["ai_summary"].replace("\n", "<br>")
+            formatted_summary = re.sub(r'话题：.*?<br>', lambda match: f'<b>{match.group(0)}</b>', formatted_summary)
+            html_messages += f'<div id="{row["chat_name"]}"><h3 class="title is-3 chat-name">{row["chat_name"]}</h3><p class="summary-text">{formatted_summary}</p><br><br></div>\n'
+            html_menu += f'<li><a href="#{row["chat_name"]}">{row["chat_name"]}</a></li>\n'
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         html_messages = "加载消息时发生错误。"
 
-    return render_template('index.html', messages=html_messages)
+    return render_template('index.html', messages=html_messages, menu=html_menu)
 
 
 if __name__ == '__main__':
-    # app.run(host='0.0.0.0', port=8080, debug=True)
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)
+    # app.run(host='0.0.0.0', port=8080)
