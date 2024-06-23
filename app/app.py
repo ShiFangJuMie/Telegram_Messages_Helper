@@ -90,7 +90,6 @@ def summary():
     if os.getenv('AUTH_CODE') != request.args.get('auth'):
         return "Unauthorized", 401
 
-    style = request.args.get('style', None)  # 获取样式参数
     start_date_str = request.args.get('start_date')  # 获取并格式化 start_date 参数
 
     if start_date_str:
@@ -102,21 +101,20 @@ def summary():
         # 计算前一天的日期
         start_date = (datetime.now() - timedelta(days=1)).date()
 
+    html_messages = ""
+    html_menu = ""
     try:
         rows = db.get_summary(start_date)
-        html_messages = ""
         for row in rows:
-            if style:
-                formatted_summary = row["ai_summary"].replace("\n", "<br>")
-                formatted_summary = re.sub(r'话题：.*?<br>', lambda match: f'<b>{match.group(0)}</b>', formatted_summary)
-                html_messages += f'<div><b>【群组名称：{row["chat_name"]}】</b><br>{formatted_summary}<br><br></div>\n'
-            else:
-                html_messages += f'<pre>【群组名称：{row["chat_name"]}】\n{row["ai_summary"]}</pre>\n\n'
+            formatted_summary = row["ai_summary"].replace("\n", "<br>")
+            formatted_summary = re.sub(r'话题：.*?<br>', lambda match: f'<b>{match.group(0)}</b>', formatted_summary)
+            html_messages += f'<div id="{row["chat_name"]}"><h3 class="title is-3 chat-name">{row["chat_name"]}</h3><p class="summary-text">{formatted_summary}</p><br><br></div>\n'
+            html_menu += f'<li><a href="#{row["chat_name"]}">{row["chat_name"]}</a></li>\n'
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         html_messages = "加载消息时发生错误。"
 
-    return render_template('index.html', messages=html_messages)
+    return render_template('index.html', messages=html_messages, menu=html_menu)
 
 
 if __name__ == '__main__':

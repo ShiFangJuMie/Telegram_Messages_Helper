@@ -8,6 +8,19 @@
 <script type="text/javascript" src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
+    <section class="section">
+        <div class="container content-container">
+            <div class="content-main">
 {{ messages|safe }}
+            </div>
+            <div class="content-sidebar">
+                <aside class="menu">
+                    <ul class="menu-list">
+{{ menu|safe }}
+                    </ul>
+                </aside>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
