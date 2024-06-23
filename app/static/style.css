@@ -1,0 +1,37 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css";
+
+.content-container {
+    display: flex;
+}
+.content-main {
+    flex: 3;
+    padding-right: 20px;
+}
+.content-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+.chat-name {
+    text-align: center;
+}
+.summary-text {
+    text-align: left;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+/* 目录滚动条样式 */
+.content-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.content-sidebar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.content-sidebar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+.content-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

@@ -103,6 +103,7 @@ def process_aggregated_messages():
 
 
 if __name__ == '__main__':
+    print("Starting job_aigc")
     # 从文件中加载预设的prompt
     PROMPT_FILE_PATH = 'prompt.txt'
     try:
@@ -112,3 +113,4 @@ if __name__ == '__main__':
         PROMPT = "请将以下聊天记录进行总结：\n"  # 如果加载失败，使用默认值
 
     process_aggregated_messages()
+    print("Finished job_aigc")
