@@ -15,23 +15,32 @@ db = Database(db_params)
 AI_API_URL = os.getenv('AI_API_URL')
 AI_API_KEY = os.getenv('AI_API_KEY')
 
+
 def load_prompt_from_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as file:
         return file.read().strip()
 
 
 def call_ai_api(message):
-    AI_API_MODEL = os.getenv('AI_API_MODEL')
+    model = os.getenv('AI_API_MODEL')
     max_tokens = 4096
-    
-    if len(message) <= 200:
-        return f"本次总结因内容太少而跳过，以下为原文：\n{message}"  # 如果消息长度小于200，直接返回原文
-    if AI_API_MODEL == 'coze' and len(PROMPT) + len(message) >= 128000:
-        AI_API_MODEL = 'gemini'
-        max_tokens = 8192
-        # return "上下文超过128k，超出CDP(GPT-4o)极限，无法总结。"
-    if AI_API_MODEL == 'gemini' and len(PROMPT) + len(message) >= 200000:
-        return "上下文超过200k，超出CDP(Gemini)极限，无法总结。"
+    content = f"{PROMPT}{message}"
+    content_len = len(PROMPT) + len(message)
+
+    if len(message) < 200:  # 如果消息长度小于200，直接返回原文
+        return f"本次总结因内容太少而跳过，以下为原文：\n{message}"
+
+    if model != 'coze' and 'gemini' not in model and content_len > 128000:
+        return "上下文超过128k，可能无法总结。如果你使用的模型支持更大的上下文，请手动修改代码。"
+
+    if model == 'coze':  # 如果AI模型为Coze，根据消息长度调整模型
+        if content_len < 30000:  # 如果长度不超过30k，使用chat2api gpt-4o总结（应对Coze的使用配额）
+            model = 'gpt-4o'
+        if content_len >= 128000:  # 如果长度超过128k，使用gemini总结
+            model = 'gemini'
+        if content_len >= 200000:  # 如果消息长度超过200k，放弃总结
+            return "上下文超过200k，超出CDP(Gemini)极限，无法总结。"
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {AI_API_KEY}'
@@ -39,11 +48,11 @@ def call_ai_api(message):
     data = {
         'messages': [
             {
-                'content': f"{PROMPT}{message}",
+                'content': content,
                 'role': 'user'
             }
         ],
-        'model': AI_API_MODEL,
+        'model': model,
         'max_tokens': max_tokens,
         'temperature': 0.8,
         'stream': False
@@ -53,8 +62,9 @@ def call_ai_api(message):
         response.raise_for_status()  # 如果响应状态码不是200，抛出HTTPError
         result = response.json()
         response_content = result['choices'][0]['message']['content'].strip()
+        response_model = result['model'].strip()
         # 返回需要写入数据库的文本
-        return f"本次总结由{AI_API_MODEL}模型驱动：\n{response_content}"
+        return f"本次总结由{model}({response_model})模型驱动：\n{response_content}"
     except requests.exceptions.RequestException as e:
         logging.error(f"API request failed: {e}")
         return None
