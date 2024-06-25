@@ -106,14 +106,16 @@ def summary():
     try:
         rows = db.get_summary(start_date)
         for row in rows:
-            # 关键词高亮/文本格式化
+            # 文本格式化
             if row["ai_summary"] is not None:
-                formatted_summary = row["ai_summary"].replace("\n", "<br>")
-                formatted_summary = re.sub(r'话题：.*?<br>', lambda match: f'<b>{match.group(0)}</b>', formatted_summary)
+                formatted_summary = row["ai_summary"].replace("\n", "\n\n")  # Markdown需要两个换行符来换行
+                formatted_summary = re.sub(r'[ \t]+(?=\n)', '', formatted_summary)  # 删除行末的空格和制表符，防止加粗和斜体格式无法解析
+                formatted_summary = re.sub(r'话题\d*：.*', lambda match: f'**{match.group(0)}**', formatted_summary)  # 话题标题加粗
+                formatted_summary = re.sub(r'^(#+)', '####', formatted_summary, flags=re.MULTILINE)  # 将标题级别降低为H4
             else:
                 formatted_summary = None
             # 输出样式
-            html_messages += f'<div id="{row["chat_name"]}"><h3 class="title is-3 chat-name">{row["chat_name"]}</h3><p class="summary-text">{formatted_summary}</p><br><br></div>\n'
+            html_messages += f'<h3 class="title is-3 chat-name" id="{row["chat_name"]}">{row["chat_name"]}</h3>\n<div class="summary-text">{formatted_summary}</div>\n'
             html_menu += f'<li><a href="#{row["chat_name"]}">{row["chat_name"]}</a></li>\n'
     except Exception as e:
         print(f"An unexpected error occurred: {e}")

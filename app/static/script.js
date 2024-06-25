@@ -1,3 +1,8 @@
+// 渲染 Markdown 内容
+document.querySelectorAll('.summary-text').forEach((element) => {
+    element.innerHTML = marked.parse(element.textContent);
+});
+
 // 右侧目录跟随滚动
 document.addEventListener('DOMContentLoaded', function () {
     const sections = document.querySelectorAll('.content-main > div');
