@@ -24,7 +24,7 @@ def aggregate_messages():
             SELECT chat_id, chat_name, id, sender_name, message
             FROM messages
             WHERE is_bot != 'true' AND date >= %s AND date < %s
-            ORDER BY chat_id, id
+            ORDER BY chat_name, id
         """, (start_date, end_date))
 
         current_chat_id = None
