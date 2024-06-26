@@ -63,8 +63,9 @@ def call_ai_api(message):
         result = response.json()
         response_content = result['choices'][0]['message']['content'].strip()
         response_model = result['model'].strip()
-        # 返回需要写入数据库的文本
+
         return f"本次总结由{model}({response_model})模型驱动：\n{response_content}"
+
     except requests.exceptions.RequestException as e:
         logging.error(f"API request failed: {e}")
         return None
@@ -93,7 +94,8 @@ def process_aggregated_messages():
 
             # 调用AI API处理消息
             ai_result = call_ai_api(messages)
-            if ai_result:
+            # 如果AI返回的总结内容小于200个字符，假定为处理失败
+            if ai_result is not None and len(ai_result) > 200:
                 # 更新AI处理结果到数据库
                 cur.execute("""
                     UPDATE messages_aggregated
