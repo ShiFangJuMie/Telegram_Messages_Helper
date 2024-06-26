@@ -30,6 +30,7 @@ def call_ai_api(message):
     if len(message) < 200:  # 如果消息长度小于200，直接返回原文
         return f"本次总结因内容太少而跳过，以下为原文：\n{message}"
 
+    # 此处模型分流规则相当个性化，请根据自己的需求进行修改
     if model != 'coze' and 'gemini' not in model and content_length > 128000:
         return "上下文超过128k，可能无法总结。如果你使用的模型支持更大的上下文，请手动修改代码。"
 
@@ -86,6 +87,7 @@ def process_aggregated_messages():
             FROM messages_aggregated
             WHERE ai_summary IS NULL
             AND aggregated_date >= %s
+            ORDER BY id
         """, (yesterday,))
 
         rows = cur.fetchall()
@@ -94,8 +96,12 @@ def process_aggregated_messages():
 
             # 调用AI API处理消息
             ai_result = call_ai_api(messages)
-            # 如果AI返回的总结内容小于200个字符，假定为处理失败
-            if ai_result is not None and len(ai_result) > 200:
+            if ai_result is not None:
+                if len(ai_result) < 200:
+                    # 如果AI处理结果太短，将原文呈现到前台显示。（避免某些敏感信息不断重试导致过多的token消耗和封号风险）
+                    logging.warning(f"AI processing result is too short for row ID {row_id}")
+                    ai_result = f"AI处理结果不达预期效果，以下为原文：\n{messages}"
+
                 # 更新AI处理结果到数据库
                 cur.execute("""
                     UPDATE messages_aggregated
