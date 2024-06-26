@@ -25,20 +25,20 @@ def call_ai_api(message):
     model = os.getenv('AI_API_MODEL')
     max_tokens = 4096
     content = f"{PROMPT}{message}"
-    content_len = len(PROMPT) + len(message)
+    content_length = len(PROMPT) + len(message)
 
     if len(message) < 200:  # 如果消息长度小于200，直接返回原文
         return f"本次总结因内容太少而跳过，以下为原文：\n{message}"
 
-    if model != 'coze' and 'gemini' not in model and content_len > 128000:
+    if model != 'coze' and 'gemini' not in model and content_length > 128000:
         return "上下文超过128k，可能无法总结。如果你使用的模型支持更大的上下文，请手动修改代码。"
 
     if model == 'coze':  # 如果AI模型为Coze，根据消息长度调整模型
-        if content_len < 30000:  # 如果长度不超过30k，使用chat2api gpt-4o总结（应对Coze的使用配额）
+        if content_length < 30000:  # 如果长度不超过30k，使用chat2api gpt-4o总结（应对Coze的使用配额）
             model = 'gpt-4o'
-        if content_len >= 128000:  # 如果长度超过128k，使用gemini总结
+        if content_length >= 128000:  # 如果长度超过128k，使用gemini总结
             model = 'gemini'
-        if content_len >= 200000:  # 如果消息长度超过200k，放弃总结
+        if content_length >= 200000:  # 如果消息长度超过200k，放弃总结
             return "上下文超过200k，超出CDP(Gemini)极限，无法总结。"
 
     headers = {

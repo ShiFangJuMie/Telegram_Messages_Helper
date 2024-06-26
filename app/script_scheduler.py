@@ -4,19 +4,19 @@ import os
 
 
 def job_cleanup():
-    os.system("python /app/script_cleanup.py")
+    os.system("python /app/script_cleanup.py >> /app/cron.log 2>&1")
 
 
 def job_sync_wechat():
-    os.system("python /app/script_sync_wechat.py")
+    os.system("python /app/script_sync_wechat.py >> /app/cron.log 2>&1")
 
 
 def job_aggregated():
-    os.system("python /app/script_aggregated.py")
+    os.system("python /app/script_aggregated.py >> /app/cron.log 2>&1")
 
 
 def job_aigc():
-    os.system("python /app/script_aigc.py")
+    os.system("python /app/script_aigc.py >> /app/cron.log 2>&1")
 
 
 def test_job():

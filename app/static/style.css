@@ -1,6 +1,6 @@
 .container-main {
     display: flex;
-    padding: 3rem 3rem;
+    padding: 1rem;
 }
 .content-main {
     flex: 3;

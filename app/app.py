@@ -121,7 +121,7 @@ def summary():
         print(f"An unexpected error occurred: {e}")
         html_messages = "加载消息时发生错误。"
 
-    return render_template('index.html', messages=html_messages, menu=html_menu)
+    return render_template('summary.html', messages=html_messages, menu=html_menu)
 
 
 if __name__ == '__main__':
