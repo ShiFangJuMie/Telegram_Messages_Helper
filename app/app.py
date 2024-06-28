@@ -108,10 +108,17 @@ def summary():
         for row in rows:
             # 文本格式化
             if row["ai_summary"] is not None:
-                formatted_summary = row["ai_summary"].replace("\n", "\n\n")  # Markdown需要两个换行符来换行
+                # 如果原文存在，添加Markdown中的列表符号，让可读性更好
+                if "原文" in row["ai_summary"]:
+                    lines = row["ai_summary"].split('\n')
+                    formatted_summary = '\n'.join([lines[0]] + [re.sub(r'^', '- ', line) for line in lines[1:]])
+                else:
+                    formatted_summary = row["ai_summary"].replace("\n", "\n\n")  # Markdown需要两个换行符来换行
+                # 文本格式化
                 formatted_summary = re.sub(r'[ \t]+(?=\n)', '', formatted_summary)  # 删除行末的空格和制表符，防止加粗和斜体格式无法解析
                 formatted_summary = re.sub(r'话题\d*：.*', lambda match: f'**{match.group(0)}**', formatted_summary)  # 话题标题加粗
                 formatted_summary = re.sub(r'^(#+)', '####', formatted_summary, flags=re.MULTILINE)  # 将标题级别降低为H4
+
             else:
                 formatted_summary = None
             # 输出样式
