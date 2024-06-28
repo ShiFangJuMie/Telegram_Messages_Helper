@@ -53,7 +53,7 @@ def aggregate_messages():
         # 拼接数据(不写为else，避免第一条消息被跳过)
         if message is not None:  # 忽略虚拟的最后一行
             message = message.replace('\n', ' ')  # 将多行消息合并为一行
-            messages.append(f"[{sender_name}]说:{message}")
+            messages.append(f"{sender_name}说:{message}")
             current_chat_id = chat_id
             current_chat_name = chat_name
 
