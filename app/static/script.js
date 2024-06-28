@@ -5,7 +5,7 @@ document.querySelectorAll('.summary-text').forEach((element) => {
 
 // 右侧目录跟随滚动
 document.addEventListener('DOMContentLoaded', function () {
-    const sections = document.querySelectorAll('.content-main > div');
+    const sections = document.querySelectorAll('.content-main h3');
     const menuLinks = document.querySelectorAll('.menu-list a');
     const sidebar = document.querySelector('.content-sidebar');
 
@@ -16,18 +16,30 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentActive = 0;
 
     window.addEventListener('scroll', () => {
-        let currentSectionIndex = sections.length - [...sections].reverse().findIndex((section) => window.scrollY >= section.offsetTop - 50) - 1;
-        currentSectionIndex = currentSectionIndex >= sections.length ? sections.length - 1 : currentSectionIndex;
+        const windowMidpoint = window.scrollY + window.innerHeight / 2;
 
-        if (currentSectionIndex !== currentActive) {
+        let closestSectionIndex = 0;
+        let closestDistance = Infinity;
+
+        sections.forEach((section, index) => {
+            const sectionMidpoint = section.offsetTop + section.offsetHeight / 2;
+            const distance = Math.abs(sectionMidpoint - windowMidpoint);
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestSectionIndex = index;
+            }
+        });
+
+        if (closestSectionIndex !== currentActive) {
             removeAllActive();
-            currentActive = currentSectionIndex;
+            currentActive = closestSectionIndex;
             makeActive(currentActive);
-            
+
             // 获取活跃目录项及其相对于sidebar的位置
             const activeElement = menuLinks[currentActive];
             if (activeElement) {
-                const activeElementOffset = activeElement.offsetTop + activeElement.offsetHeight;
+                const activeElementOffset = activeElement.offsetTop;
                 const sidebarHeight = sidebar.offsetHeight;
 
                 // 判断活跃目录项是否超出sidebar的可见范围
