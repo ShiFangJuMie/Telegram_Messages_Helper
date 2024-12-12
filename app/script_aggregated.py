@@ -30,6 +30,7 @@ def aggregate_messages():
     current_chat_id = None
     current_chat_name = ""
     messages = []
+    seen_messages = set()
     rows = cur.fetchall()
 
     # 增加一个虚拟的最后一行来触发最后一次插入
@@ -49,11 +50,15 @@ def aggregate_messages():
                 print(f"An error occurred while inserting aggregated messages: {e}")
                 conn.rollback()
             messages = []
+            seen_messages = set()
 
         # 拼接数据(不写为else，避免第一条消息被跳过)
         if message is not None:  # 忽略虚拟的最后一行
             message = message.replace('\n', ' ')  # 将多行消息合并为一行
-            messages.append(f"{sender_name}说:{message}")
+            # 尝试将同一个群聊中的消息去重（实验性功能）
+            if message not in seen_messages:
+                seen_messages.add(message)
+                messages.append(f"{sender_name}说:{message}")
             current_chat_id = chat_id
             current_chat_name = chat_name
 

@@ -14,7 +14,7 @@ wechat_base_url = os.getenv('WECHAT_BASE_URL')
 
 
 def fetch_messages(date):
-    url = f'{wechat_base_url}/messages?date={date}'
+    url = f'{wechat_base_url}/wxBotWebhook/messages?date={date}'
     response = requests.get(url)
     response.raise_for_status()  # 如果请求失败，抛出异常
     return response.json()  # 返回 JSON 数据
