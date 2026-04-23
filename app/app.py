@@ -130,6 +130,40 @@ def summary():
 
     return render_template('summary.html', messages=html_messages, menu=html_menu)
 
+import socket
+import json
+from flask import jsonify
+
+@app.route('/api/send', methods=['POST'])
+def api_send_message():
+    # 简单的身份验证
+    if os.getenv('AUTH_CODE') != request.args.get('auth'):
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    if not data or 'target' not in data or 'message' not in data:
+        return jsonify({"error": "JSON body must contain 'target' and 'message'"}), 400
+        
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(10.0)
+            s.connect(('127.0.0.1', 8081))
+            s.sendall(json.dumps(data).encode('utf-8'))
+            response_data = s.recv(4096)
+            
+            if not response_data:
+                return jsonify({"error": "Empty response from Telethon backend"}), 500
+                
+            response = json.loads(response_data.decode('utf-8'))
+            if response.get("status") == "ok":
+                return jsonify({"success": True, "message": "Message sent instantly"}), 200
+            else:
+                return jsonify({"error": response.get("message", "Unknown error")}), 500
+    except ConnectionRefusedError:
+        return jsonify({"error": "Telegram backend is not running or not ready."}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

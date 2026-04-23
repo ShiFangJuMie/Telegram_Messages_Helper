@@ -1,5 +1,7 @@
 import os
 import re
+import json
+import asyncio
 
 from telethon import TelegramClient, events
 from telethon.errors import (
@@ -120,11 +122,51 @@ async def new_message_listener(event):
         logging.error(f"Failed to insert message: {e}")
 
 
+async def handle_ipc(reader, writer):
+    try:
+        data = await asyncio.wait_for(reader.read(8192), timeout=5.0)
+        if not data:
+            return
+            
+        msg_data = json.loads(data.decode('utf-8'))
+        target = msg_data.get('target')
+        message = msg_data.get('message')
+        
+        if target and message:
+            try:
+                peer = int(target)
+            except ValueError:
+                peer = target
+                
+            await client.send_message(peer, message)
+            writer.write(json.dumps({"status": "ok"}).encode('utf-8'))
+            logging.info(f"Instantly sent IPC message to {target}")
+        else:
+            writer.write(json.dumps({"status": "error", "message": "Missing target or message"}).encode('utf-8'))
+    except Exception as e:
+        logging.error(f"Failed to IPC send message: {e}")
+        try:
+            writer.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+        except:
+            pass
+    finally:
+        try:
+            await writer.drain()
+        except:
+            pass
+        writer.close()
+
 async def main():
     try:
         await client.start()
         logging.info("Client started successfully.")
-        await client.run_until_disconnected()
+        
+        # Start IPC server for instant message dispatching
+        server = await asyncio.start_server(handle_ipc, '127.0.0.1', 8081)
+        logging.info("IPC Server started on 127.0.0.1:8081 for fast dispatch.")
+        
+        async with server:
+            await client.run_until_disconnected()
     except (PhoneCodeInvalidError, SessionPasswordNeededError, PhoneNumberUnoccupiedError) as e:
         logging.error(f"Authentication failed: {e}")
         exit(401)
